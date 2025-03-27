@@ -28,7 +28,6 @@ namespace BookStoreApp.API.Controllers
         public async Task<IActionResult> Register(UserDto userDto)
         {
             logger.LogInformation($"Registration Attempt for {userDto.Email}");
-            
             try
             {
                 var user = mapper.Map<ApiUser>(userDto);
@@ -55,12 +54,12 @@ namespace BookStoreApp.API.Controllers
             }
 
         }
+
         [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login(LoginUserDto userDto)
         {
             logger.LogInformation($"Login Attempt for {userDto.Email}");
-
             try
             {
                 var user = await userManager.FindByEmailAsync(userDto.Email);
@@ -79,7 +78,6 @@ namespace BookStoreApp.API.Controllers
                 logger.LogError(ex, $"Something Went Wrong in the {nameof(Register)}");
                 return Problem($"Something Went Wrong in the {nameof(Register)}", statusCode: 500);
             }
-
         }
     }
 }

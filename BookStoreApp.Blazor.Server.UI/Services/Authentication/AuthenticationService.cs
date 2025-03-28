@@ -8,15 +8,13 @@ namespace BookStoreApp.Blazor.Server.UI.Services.Authentication
     public class AuthenticationService : IAuthenticationService
     {
         private readonly IClient httpClient;
-        private readonly ILocalStorageService localstorage;
+        private readonly ILocalStorageService localStorage;
         private readonly AuthenticationStateProvider authenticationStateProvider;
 
-        public AuthenticationService(IClient httpClient,
-            ILocalStorageService localstorage,
-            AuthenticationStateProvider authenticationStateProvider)
+        public AuthenticationService(IClient httpClient, ILocalStorageService localStorage, AuthenticationStateProvider authenticationStateProvider)
         {
             this.httpClient = httpClient;
-            this.localstorage = localstorage;
+            this.localStorage = localStorage;
             this.authenticationStateProvider = authenticationStateProvider;
         }
 
@@ -24,13 +22,16 @@ namespace BookStoreApp.Blazor.Server.UI.Services.Authentication
         {
             var response = await httpClient.LoginAsync(loginModel);
 
-            // store token
-            await localstorage.SetItemAsync("accessToken", response.Token);
+            await localStorage.SetItemAsync("accessToken", response.Token);
 
-            // change auth state of app
             await ((ApiAuthenticationStateProvider)authenticationStateProvider).LoggedIn();
 
             return true;
+        }
+
+        public async Task Logout()
+        {
+            await ((ApiAuthenticationStateProvider)authenticationStateProvider).LoggedOut();
         }
     }
 }

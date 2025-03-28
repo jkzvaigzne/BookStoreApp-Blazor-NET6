@@ -1,6 +1,3 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using BookStoreApp.Blazor.Server.UI.Data;
 using BookStoreApp.Blazor.Server.UI.Services.Base;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +5,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddHttpClient<IClient, Client>(cl => cl.BaseAddress = new Uri("https://localhost:7081"));
 
 var app = builder.Build();

@@ -43,7 +43,7 @@ namespace BookStoreApp.API.Data
                     .IsUnique();
 
                 entity.Property(e => e.Image)
-                    .HasMaxLength(50)
+                    .HasMaxLength(250)
                     .IsFixedLength();
 
                 entity.Property(e => e.Isbn)

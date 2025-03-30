@@ -18,13 +18,13 @@ namespace BookStoreApp.Blazor.Server.UI.Services
             this.mapper = mapper;
         }
 
-        public async Task<Response<int>> Create(BookCreateDto author)
+        public async Task<Response<int>> Create(BookCreateDto book)
         {
             Response<int> response = new();
             try
             {
                 await GetBearerToken();
-                await client.BooksPOSTAsync(author);
+                await client.BooksPOSTAsync(book);
             }
             catch (ApiException exception)
             {
@@ -51,13 +51,13 @@ namespace BookStoreApp.Blazor.Server.UI.Services
             return response;
         }
 
-        public async Task<Response<int>> Edit(int id, BookUpdateDto author)
+        public async Task<Response<int>> Edit(int id, BookUpdateDto book)
         {
             Response<int> response = new();
             try
             {
                 await GetBearerToken();
-                await client.BooksPUTAsync(id, author);
+                await client.BooksPUTAsync(id, book);
             }
             catch (ApiException exception)
             {

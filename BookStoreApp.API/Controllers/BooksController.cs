@@ -131,7 +131,7 @@ namespace BookStoreApp.API.Controllers
         {
             var url = HttpContext.Request.Host.Value;
             var ext = Path.GetExtension(imageName);
-            var fileName = $"{Guid.NewGuid()}.{ext}";
+            var fileName = $"{Guid.NewGuid()}{ext}";
 
             var path = $"{webHostEnvironment.WebRootPath}\\bookcoverimages\\{fileName}";
 

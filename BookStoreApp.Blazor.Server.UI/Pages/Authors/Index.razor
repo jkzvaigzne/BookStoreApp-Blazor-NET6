@@ -66,7 +66,7 @@ else
     private async Task Delete(int authorId)
     {
         var author = Authors.First(q => q.Id == authorId);
-        var confirm = await js.InvokeAsync<bool>("confirm", $"Are You Sure You Want To Delete {author.FirstName} {author.LastName}?");
+        var confirm = await js.InvokeAsync<bool>("confirm", $"{Confirms.DeleteConfirm} {author.FirstName} {author.LastName}?");
         if (confirm)
         {
             var response = await authorService.Delete(authorId);

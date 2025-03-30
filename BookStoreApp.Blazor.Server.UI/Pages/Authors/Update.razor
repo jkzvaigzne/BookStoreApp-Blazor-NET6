@@ -25,6 +25,7 @@
         <ValidationMessage For="@(() => Author.Bio)" />
     </div>
     <br />
+
     <button class="btn btn-primary" type="submit">
         <span class="oi oi-pencil"></span>
         Update Author
@@ -35,14 +36,13 @@
     </button>
 </EditForm>
 
-
 @code {
     [Parameter]
     public int id { get; set; }
 
     private AuthorUpdateDto Author = new AuthorUpdateDto();
 
-    protected override async Task OnInitializedAsync()
+    protected async override Task OnInitializedAsync()
     {
         var response = await authorService.GetAuthorForUpdate(id);
         if (response.Success)

@@ -5,6 +5,7 @@ using BookStoreApp.API.Models.Author;
 using AutoMapper;
 using BookStoreApp.API.Static;
 using Microsoft.AspNetCore.Authorization;
+using AutoMapper.QueryableExtensions;
 
 namespace BookStoreApp.API.Controllers
 {
@@ -43,24 +44,26 @@ namespace BookStoreApp.API.Controllers
 
         // GET: api/Authors/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<AuthorReadOnlyDto>> GetAuthor(int id)
+        public async Task<ActionResult<AuthorDetailsDto>> GetAuthor(int id)
         {
             try
             {
-                var author = await _context.Authors.FindAsync(id);
+                var author = await _context.Authors
+                    .Include(q => q.Books)
+                    .ProjectTo<AuthorDetailsDto>(mapper.ConfigurationProvider)
+                    .FirstOrDefaultAsync(q => q.Id == id);
 
                 if (author == null)
                 {
-                    logger.LogWarning($"Record Not Found: {nameof(GetAuthor)} - id: {id}");
+                    logger.LogWarning($"Record Not Found: {nameof(GetAuthor)} - ID: {id}");
                     return NotFound();
                 }
 
-                var authorDto = mapper.Map<AuthorReadOnlyDto>(author);
-                return Ok(authorDto);
+                return Ok(author);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"Error Performing get in {nameof(GetAuthors)}");
+                logger.LogError(ex, $"Error Performing GET in {nameof(GetAuthors)}");
                 return StatusCode(500, Messages.Error500Messages);
             }
         }

@@ -7,12 +7,6 @@
 <EditForm Model="Book">
     <fieldset disabled="true">
         <div class="form-group">
-            <label>Book Cover Photo</label>
-            <div>
-                <img src="@Book.Image" width="100" heigth="100" class="img-thumbnail">
-            </div>
-        </div>
-        <div class="form-group">
             <label for="title">Book Title</label>
             <InputText @bind-Value="Book.Title" class="form-control" id="title" />
         </div>
@@ -42,6 +36,15 @@
             <InputTextArea @bind-Value="Book.Summary" class="form-control" id="summary" />
         </div>
         <br/>
+        <div class="form-group">
+            <label>Book Cover Photo</label>
+            @if (!string.IsNullOrEmpty(Book.Image))
+            {
+                <div>
+                    <img src="@Book.Image" width="100" height="100" class="img-thumbnail" />
+                </div>
+            }
+        </div>
     </fieldset>
     
     

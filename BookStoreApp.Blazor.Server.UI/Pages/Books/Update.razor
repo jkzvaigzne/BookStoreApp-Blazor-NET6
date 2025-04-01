@@ -1,12 +1,13 @@
-﻿@page "/books/create"
+﻿@page "/books/update/{id:int}"
+
 @attribute [Authorize(Roles = Roles.Administrator)]
 @inject IBookService bookService
 @inject IAuthorService authorService
 @inject NavigationManager navManager
 
-<h3>Create</h3>
+<h3>Edit Book</h3>
 
-<EditForm Model="Book" OnValidSubmit="HandleBookCreate"> 
+<EditForm Model="Book" OnValidSubmit="HandleBookUpdate">
     <DataAnnotationsValidator />
     <ValidationSummary />
     <div class="form-group">
@@ -38,62 +39,64 @@
         <InputTextArea @bind-Value="Book.Summary" class="form-control" id="summary" />
         <ValidationMessage For="@(() => Book.Summary)" />
     </div>
+    <br/>
     <div class="form-group">
-        <label for="summary">Summary</label>
+        <label for="author">Author</label>
         <InputSelect @bind-Value="Book.AuthorId" class="form-select" id="author">
             <option value="">-- Select Author --</option>
-            @foreach (var author in Authors)
+            @foreach(var author in Authors)
             {
                 <option value="@author.Id">@author.FirstName @author.LastName</option>
             }
         </InputSelect>
         <ValidationMessage For="@(() => Book.AuthorId)" />
     </div>
-    <br />
+    <br/>
     <div class="form-group">
         <label>Book Cover Photo</label>
         <div>
             <InputFile OnChange="HandleFileSelection" />
-            @if (!string.IsNullOrEmpty(img))
-            {
-                <img src="@img" width="100" height="100" class="img-thumbnail" />
-            }
+            <img src="@img" width="100" heigth="100" class="img-thumbnail">
             <p class="text-danger">@UploadFileWarning</p>
         </div>
     </div>
-    <br />
+    <br/>
     <button class="btn btn-primary" type="submit">
         <span class="oi oi-pencil"></span>
-        Create Book
+        Update Book
     </button>
-    <button @onlick="BackToList" class="btn btn-outline-secondary">
-        <span class="oi oi-media-skip-backward" type="button"></span>
+    <button @onclick="BackToList" class="btn btn-outline-secondary" type="button">
+        <span class="oi oi-media-skip-backward"></span>
         Back To List
     </button>
 </EditForm>
 
+
 @code {
-    private BookCreateDto Book = new();
+
+    [Parameter]
+    public int id { get; set; }
+
+    private BookUpdateDto Book = new BookUpdateDto();
     private List<AuthorReadOnlyDto> Authors = new();
-    private string UploadFileWarning = string.Empty;
+
     private string img = string.Empty;
+    private string UploadFileWarning = string.Empty;
     private long maxFileSize = 1024 * 1024 * 5;
 
-    protected override async Task OnInitializedAsync()
+    protected async override Task OnInitializedAsync()
     {
-        var response = await authorService.Get();
-        if(response.Success)
+        var bookResponse = await bookService.GetForUpdate(id);
+        if (bookResponse.Success)
         {
-            Authors = response.Data;
+            Book = bookResponse.Data;
+            img = Book.Image;
         }
-    }
 
-    private async Task HandleBookCreate()
-    {
-        var response = await bookService.Create(Book);
-        if(response.Success)
+        var authorResponse = await authorService.Get();
+        if (authorResponse.Success)
         {
-            BackToList();
+            Authors = authorResponse.Data;
         }
     }
 
@@ -104,27 +107,36 @@
         {
             if(file.Size > maxFileSize)
             {
-                UploadFileWarning = Warnings.FileToBig;
+                UploadFileWarning = $"{Warnings.FileToBig}";
+                return;
             }
 
             var ext = System.IO.Path.GetExtension(file.Name);
-            if(ext.ToLower().Contains(Formats.JPG) ||
-                ext.ToLower().Contains(Formats.PNG) ||
-                ext.ToLower().Contains(Formats.JPGE))
+            if((ext.ToLower().Contains($"{Formats.JPG}") ||
+                ext.ToLower().Contains($"{Formats.PNG}") ||
+                ext.ToLower().Contains($"{Formats.JPGE}")) == false)
             {
-                var byteArray = new byte[file.Size];
-                await file.OpenReadStream().ReadAsync(byteArray);
-                string imageType = file.ContentType;
-                string base64String = Convert.ToBase64String(byteArray);
-
-                Book.ImageData = base64String;
-                Book.OriginalImageName = file.Name;
-                img = $"data:{imageType}; base64, {base64String}";
-            } 
-            else
-            {
-                UploadFileWarning = Warnings.JpgOrPng;
+                UploadFileWarning = $"{Warnings.JpgOrPng}";
+                return;
             }
+
+            var byteArray = new byte[file.Size];
+            await file.OpenReadStream().ReadAsync(byteArray);
+            string imageType = file.ContentType;
+            string base64String = Convert.ToBase64String(byteArray);
+
+            Book.ImageData = base64String;
+            Book.OriginalImageName = file.Name;
+            img = $"data:{imageType}; base64, {base64String}";
+        }
+    }
+
+    private async Task HandleBookUpdate()
+    {
+        var response = await bookService.Edit(id, Book);
+        if (response.Success)
+        {
+            BackToList();
         }
     }
 
@@ -132,4 +144,5 @@
     {
         navManager.NavigateTo("/books/");
     }
+
 }
